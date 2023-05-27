@@ -1,0 +1,252 @@
+Estes arquivos devem estar dentro da pasta apache
+
+Dockerfile
+
+FROM php:7.4-apache 
+MAINTAINER camilamariacampos@gmail.com
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
+RUN docker-php-ext-install pdo pdo_mysql mysqli
+RUN a2enmod rewrite
+
+000-default.conf
+
+#000-default.conf
+<VirtualHost *:80>
+ ServerAdmin camilamariacampos@gmail.com 
+ DocumentRoot /var/www/site   
+
+<Directory /var/www>  
+  Options Indexes FollowSymLinks 
+  AllowOverride All 
+  Require all granted 
+</Directory>
+</VirtualHost>
+
+
+pasta php
+criar a pasta site e dentro da pasta site criar os arquivos abaixo
+criar o arquivo index.html
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+
+	<title>Cadastro de Visitantes</title>
+
+	<meta charset="UTF-8">
+
+</head>
+
+<body>
+
+<h1>Cadastro de Usuários do Site</h1>
+
+<br>
+
+<form method="POST"	action="verifica.php">
+
+
+
+<pre>
+
+Insira as informações para efetuar o cadastro e deixe seu comentário.
+
+
+
+Nome:	<input type="text" size="35" maxlength="256" name="nome">
+
+E-mail: <input type="text" size="35" maxlength="256" name="email">
+
+Cidade: <input type="text" size="35" maxlength="256" name="cidade">
+
+Estado: <input type="text" size="2" maxlength="2" name="estado">
+
+
+
+Digite sua opnião sobre o site no espaço abaixo:
+
+
+
+<textarea name="comentarios" cols="42" rows="5"></textarea>
+
+
+
+<input type="submit" value="Efetuar Cadastro" name="enviar">
+
+</pre>
+
+</form>
+
+
+
+</body>
+
+</html>
+
+criar arquivo
+
+insere.php
+
+<?php
+$servername = "banco";
+$username = "root";
+$password = "12345";
+$database = "testedb";
+// Create connection 
+$conn = new mysqli ($servername, $username, $password, $database);
+
+// Check connetcion
+
+if ( $conn -> connect_error) {
+
+	die ("Conexão Falhou:". $conn->connect_error);
+}
+
+
+
+
+$nome 			 = $_POST['nome'];
+$email 			 = $_POST['email'];
+$cidade  	 	 = $_POST['cidade'];
+$estado  		 = $_POST['estado'];
+$comentarios  	 = $_POST['comentarios'];
+
+$sql = "INSERT INTO cadastro VALUES";
+$sql .= "('$nome','$email', '$cidade', '$estado', '$comentarios')";
+
+if ($conn->query($sql) === TRUE) {
+	echo  "Usuário incluído com sucesso!";
+} else {
+	echo "Erro: " . $sql . "<br>" . $conn->error;
+}
+
+$conn->close();
+?>
+
+verifica.php
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+	<title>Verifica</title>
+
+	<meta charset="utf-8">
+
+</head>
+
+<form method="POST"	action="insere.php">
+
+<body>
+
+<?php 
+
+
+
+$nome 			 = $_POST['nome'];
+
+$email 			 = $_POST['email'];
+
+$cidade  	 	 = $_POST['cidade'];
+
+$estado  		 = $_POST['estado'];
+
+$comentarios  	 = $_POST['comentarios'];
+
+$erro 			 = 0;
+
+
+
+//Verifica se o campo nome não está em branco
+
+if (empty($nome) OR strstr($nome, ' ')==false) {
+
+	echo "Favor digitar o seu nome corretamente.<br>";
+
+	$erro = 1;
+
+}
+
+
+
+//Verifica se o campo email está preenchido corretamente
+
+if (strlen($email)< 8 || strstr($email, '@')==false) {
+
+	echo "Favor digitar o seu email corretamente.<br>";
+
+	$erro = 1;
+
+}
+
+
+
+//Verifica se o campo cidade está em branco
+
+if (empty($cidade)) {
+
+	echo "Favor digitar sua cidade.<br>";
+
+	$erro = 1;
+
+}
+
+
+
+//Verifica se o campo estado está preenchido com 2 digitos
+
+if (strlen($estado)!=2) {
+
+	echo "Favor digitar o seu estado corretamente.<br>";
+
+	$erro = 1;
+
+}
+
+
+
+//Verifica se o campo comentarios está vazio
+
+if (empty($comentarios)) {
+
+	echo "Favor entre com algum comentário.<br>";
+
+	$erro = 1;
+
+}
+
+
+
+//Verifica se não houve erro - neste caso chama a include para inserir os dados
+
+if ($erro == 0) {
+
+	echo "Todos os dados foram digitados corretamente.<br>";
+
+	include 'insere.php';
+
+}
+
+
+
+ ?>
+
+</body>
+
+</html>
+
+.htaccess
+
+RewriteEngine On 
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d 
+RewriteRule ^(.*)$ /index.php?/$1 [L] 
+
+
+
+
+
+
+
