@@ -1,0 +1,43 @@
+Estes arquivos devem estar dentro da pasta apache
+
+Dockerfile
+
+FROM php:7.2-apache-stretch
+LABEL mainteiner="luanc179@gmail.com" 
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf 
+RUN docker-php-ext-install pdo pdo_mysql mysqli 
+RUN a2enmod rewrite
+
+000-default.conf
+
+#000-default.conf
+<VirtualHost *:80>
+ ServerAdmin luanc179@gmail.com 
+ DocumentRoot /var/www/site   
+
+<Directory /var/www>  
+  Options Indexes FollowSymLinks 
+  AllowOverride All 
+  Require all granted 
+</Directory>
+</VirtualHost>
+
+
+pasta php
+criar a pasta site e dentro da pasta site criar os arquivos abaixo
+criar o arquivo index.html
+
+
+.htaccess
+
+RewriteEngine On 
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d 
+RewriteRule ^(.*)$ /index.php?/$1 [L] 
+
+
+
+
+
+
+

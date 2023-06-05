@@ -1,0 +1,21 @@
+criação da rede
+
+docker network create redeserv
+
+docker run --network redeserv --restart=always -p 8083:80 --name servidor -v $(pwd):/urs/share/nginx/html -d nginx
+
+
+criação do banco
+
+docker run --name banco --network redeserv -e MYSQL_ROOT_PASSWORD=12345 -p 3309:3306 --restart=always -d -v /home/servidor/Documentos/projetoiti/mysql/conf.d:/etc/mysql/conf.d -v /home/servidor/Documentos/projetoiti/mysql/datadir:/var/lib/mysql mysql:latest
+
+
+phpmyadmin
+
+docker run --name admin --network redeserv --restart=always -e PMA_HOST=banco -e MYSQL_ROOT_PASSWORD=12345 -e PMA_PORT=3306 -p 8086:80 -d phpmyadmin/phpmyadmin
+
+
+aplicaçao
+"docker build -t aplicacao ." dentro da pasta apache (com arquivos ja configurados)
+
+docker run -d --name serverphp --restart=always --network redeserv -p 8087:80 -v /home/servidor/Documentos/projetoiti/php:/var/www/site aplicacao
